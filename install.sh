@@ -162,9 +162,9 @@ api_get_json() {
 }
 
 # resolve_latest_publish_cli_tag walks /releases (not /releases/latest)
-# and picks the newest release whose tag begins with publish-cli/v --
-# defends against the repo growing other release flows (server-side
-# tooling) that would otherwise claim "latest" and break the installer.
+# and picks the newest non-draft, non-prerelease CLI release whose tag is
+# a plain semver `vX.Y.Z`. GoReleaser OSS requires semver tags, so the
+# older prefixed `publish-cli/vX.Y.Z` shape is intentionally rejected.
 # (opus review round 2 P2.)
 resolve_latest_publish_cli_tag() {
   local tmp
@@ -177,11 +177,11 @@ resolve_latest_publish_cli_tag() {
   # downstream. The previous form was vulnerable to SIGPIPE under
   # `set -o pipefail` once tag_name list filled the pipe buffer.
   # (opus round 3 P1-B.)
-  # Filter out draft + prerelease so a stray `publish-cli/v0.2.0-rc1`
+  # Filter out draft + prerelease so a stray `v0.2.0-rc1`
   # uploaded by an operator doesn't auto-install via the no-tag path.
   # If someone really wants the RC they pass ZETTLAB_PUBLISH_TAG
   # explicitly. (opus round 4 P2.)
-  jq -r 'first(.[] | select(.draft == false and .prerelease == false) | select(.tag_name | startswith("publish-cli/v")) | .tag_name) // empty' "${tmp}"
+  jq -r 'first(.[] | select(.draft == false and .prerelease == false) | select(.tag_name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .tag_name) // empty' "${tmp}"
 }
 
 # resolve_asset_api_url returns the api.github.com asset URL for a
@@ -253,18 +253,17 @@ main() {
 
   local tag="${ZETTLAB_PUBLISH_TAG:-}"
   if [ -z "${tag}" ]; then
-    info "resolving latest publish-cli tag from GitHub"
+    info "resolving latest zettlab-publish release tag from GitHub"
     tag="$(resolve_latest_publish_cli_tag)"
   fi
-  [ -n "${tag}" ] || fatal "could not resolve a publish-cli/v* tag; set ZETTLAB_PUBLISH_TAG=publish-cli/vX.Y.Z and retry"
-  case "${tag}" in
-    publish-cli/v*) ;;
-    *) fatal "refusing to install tag ${tag} -- only publish-cli/v* tags are valid CLI releases" ;;
-  esac
+  [ -n "${tag}" ] || fatal "could not resolve a vX.Y.Z CLI release tag; set ZETTLAB_PUBLISH_TAG=vX.Y.Z and retry"
+  if ! printf "%s\n" "${tag}" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
+    fatal "refusing to install tag ${tag} -- only semver CLI release tags like v0.1.0 are valid"
+  fi
   # goreleaser's .Version strips the leading `v`, so the archive name
   # contains the bare semver (e.g. 0.1.0, not v0.1.0). Match that here.
   # (opus review round 2 P1.3.)
-  local version="${tag#publish-cli/v}"
+  local version="${tag#v}"
   info "installing zettlab-publish ${version}"
 
   local platform

@@ -43,14 +43,15 @@ Pin a specific CLI release:
 ```bash
 export GITHUB_TOKEN=<github-token-with-zettlab-server-read>
 curl -fsSL https://raw.githubusercontent.com/zettlab/homebrew-tap/main/install.sh \
-  | ZETTLAB_PUBLISH_TAG=publish-cli/v0.1.0 bash
+  | ZETTLAB_PUBLISH_TAG=v0.1.0 bash
 ```
 
 ## Release Ownership
 
 Do not edit `Formula/zettlab-publish.rb` by hand for normal releases. It is
 updated by GoReleaser from `zettlab/zettlab-server` when a
-`publish-cli/v*` tag is pushed.
+`v*` CLI release tag is pushed. GoReleaser OSS requires the git tag itself to
+be valid semver, so CLI releases use tags like `v0.1.0`.
 
 `install.sh` is sourced from `zettlab-server/hack/install/install.sh`; keep the
 two copies aligned when changing installer behavior.
