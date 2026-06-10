@@ -15,7 +15,7 @@ class ZettlabPublish < Formula
           "Accept: application/octet-stream",
           "Authorization: bearer #{ENV["HOMEBREW_GITHUB_API_TOKEN"]}"
         ]
-      sha256 "fbe15856f2bd72ce7ae5d4d8a5974ef912549be23015f8fc3fda905fec6b2dc0"
+      sha256 "3d31832f35467e8e7df59050c4e77ba7738744d731485bd4bcb8d802401de248"
 
       define_method(:install) do
         bin.install "zettlab-publish"
@@ -27,7 +27,7 @@ class ZettlabPublish < Formula
           "Accept: application/octet-stream",
           "Authorization: bearer #{ENV["HOMEBREW_GITHUB_API_TOKEN"]}"
         ]
-      sha256 "6f616ac0c2512405694bc9ad4f5e90e1821764c20ab32ef9aed541c0906e7a6c"
+      sha256 "e7f3b24523373f7cd7b39a73bbaeb2c117748afaad82242e85168c00c9a3f074"
 
       define_method(:install) do
         bin.install "zettlab-publish"
@@ -42,7 +42,7 @@ class ZettlabPublish < Formula
           "Accept: application/octet-stream",
           "Authorization: bearer #{ENV["HOMEBREW_GITHUB_API_TOKEN"]}"
         ]
-      sha256 "8117e8427290585b407ae9ac700fef5ab36503c4e56e4cb013b02b4b4b1f23a9"
+      sha256 "20fbeb906770ee40648d084913583c59dd82c53f55c61ca8bb6e99ab8943162c"
       define_method(:install) do
         bin.install "zettlab-publish"
       end
@@ -53,7 +53,7 @@ class ZettlabPublish < Formula
           "Accept: application/octet-stream",
           "Authorization: bearer #{ENV["HOMEBREW_GITHUB_API_TOKEN"]}"
         ]
-      sha256 "02c093bd2b83dfecff7b7f289294f5ca7576ef8840df213815d7a56d6f61fc4c"
+      sha256 "035b5da7c529863acfa0129db8e3b5911f285135c3d8676b7e0d17fdec6c00f8"
       define_method(:install) do
         bin.install "zettlab-publish"
       end
