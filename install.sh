@@ -8,18 +8,11 @@
 #
 # Operator-facing canonical URL:
 #
-#   export GITHUB_TOKEN=<token-with-zettlab-server-release-read>
 #   curl -fsSL https://raw.githubusercontent.com/zettlab/homebrew-tap/main/install.sh | bash
 #
-# Cross-host redirect / PAT handling: we resolve asset URLs through
-# api.github.com/.../releases/assets/<id> using the Accept:
-# application/octet-stream content negotiation. GitHub responds with a
-# 302 to release-assets.githubusercontent.com -- THAT IS a cross-host
-# hop. What keeps the PAT from leaking is curl's default `--location`
-# behaviour, which STRIPS Authorization on cross-host redirect (since
-# curl 7.86, enforced below by require_min_curl). Do NOT change
-# --location to --location-trusted (would forward the token); do NOT
-# add --proto-redir on its own without testing.
+# Release assets are public in zettlab/homebrew-tap. GITHUB_TOKEN remains
+# optional for API rate-limit relief, but operators do not need any GitHub
+# token to install.
 #
 # Dependencies: bash >= 3.2 (macOS default /bin/bash works -- we keep
 # the script free of associative arrays (`declare -A`, bash 4+) and
@@ -37,7 +30,7 @@
 set -euo pipefail
 
 REPO_OWNER="zettlab"
-REPO_NAME="zettlab-server"
+REPO_NAME="homebrew-tap"
 BINARY_NAME="zettlab-publish"
 INSTALL_DIR_PRIMARY="/usr/local/bin"
 INSTALL_DIR_FALLBACK="${HOME}/.local/bin"
@@ -96,7 +89,7 @@ require_min_curl() {
   local newest
   newest="$(printf "%s\n%s\n" "${v}" "${CURL_MIN_VERSION}" | sort -V | tail -n 1)"
   if [ "${newest}" != "${v}" ]; then
-    fatal "curl >= ${CURL_MIN_VERSION} required (found ${v}); needed for safe cross-host redirect Authorization stripping"
+    fatal "curl >= ${CURL_MIN_VERSION} required when GITHUB_TOKEN is set (found ${v}); needed for safe cross-host redirect Authorization stripping"
   fi
 }
 
@@ -134,11 +127,9 @@ resolve_install_dir() {
   fatal "no writable install directory among: ${INSTALL_DIR_PRIMARY}, ${INSTALL_DIR_FALLBACK}"
 }
 
-# Authenticated GET against the GitHub Releases REST API. Both binary
-# asset downloads (Accept: application/octet-stream) and JSON metadata
-# fetches go through this single helper so the silence_trace guard is
-# guaranteed before curl gets the Bearer token. (opus review round 2
-# P1.5 + P2 -- consistency.)
+# GET helper for GitHub release downloads and metadata. If GITHUB_TOKEN is
+# present, it is used for rate-limit relief and never required for normal
+# operator installs.
 curl_get() {
   local url="$1"
   local accept="$2"
@@ -171,7 +162,7 @@ resolve_latest_publish_cli_tag() {
   tmp="$(mktemp)"
   trap 'rm -f "${tmp}"' RETURN
   api_get_json "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases?per_page=100" "${tmp}" \
-    || fatal "could not query GitHub Releases -- if zettlab-server is private, export GITHUB_TOKEN with repo:read first"
+    || fatal "could not query GitHub Releases from ${REPO_OWNER}/${REPO_NAME}"
   # Reverse-chronological order is GitHub's default; jq's `first(...)`
   # short-circuits inside the filter so we never need a `| head -n 1`
   # downstream. The previous form was vulnerable to SIGPIPE under
@@ -249,7 +240,9 @@ main() {
   require_tool curl "needed to download release assets"
   require_tool tar "needed to extract the binary archive"
   require_tool jq "needed to parse GitHub Releases API JSON; install via brew/apt/yum"
-  require_min_curl
+  if [ -n "${GITHUB_TOKEN:-}" ]; then
+    require_min_curl
+  fi
 
   local tag="${ZETTLAB_PUBLISH_TAG:-}"
   if [ -z "${tag}" ]; then
@@ -290,9 +283,6 @@ main() {
     [ -n "${archive_url}" ] || fatal "release ${tag} has no asset ${archive_name}"
     curl_get "${archive_url}" "application/octet-stream" "${tmpdir}/${archive_name}"
   else
-    # Anonymous fallback uses the public download URL; only works when
-    # the repo (or that specific asset) is reachable without auth.
-    # Private repos MUST set GITHUB_TOKEN.
     curl_get "https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${tag}/${archive_name}" \
       "*/*" "${tmpdir}/${archive_name}"
   fi
