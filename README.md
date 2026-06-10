@@ -55,3 +55,8 @@ be valid semver, so CLI releases use tags like `v0.1.0`.
 
 `install.sh` is sourced from `zettlab-server/hack/install/install.sh`; keep the
 two copies aligned when changing installer behavior.
+
+`lib/zettlab_private_release_download_strategy.rb` lets Homebrew install assets
+from the private `zettlab/zettlab-server` release via GitHub's Release Asset
+API. Keep it in the tap because generated formulas reference it with
+`require_relative`.
