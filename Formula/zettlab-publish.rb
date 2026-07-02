@@ -5,20 +5,20 @@
 class ZettlabPublish < Formula
   desc "Zettlab internal operator CLI for publishing flows."
   homepage "https://github.com/zettlab/zettlab-server"
-  version "0.1.1"
+  version "0.1.2"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.1/zettlab-publish_0.1.1_darwin_amd64.tar.gz"
-      sha256 "2bd642c62f3a76f116059a14e43bda9671a2c9b19f4de7df78bd59cf75fd490b"
+      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.2/zettlab-publish_0.1.2_darwin_amd64.tar.gz"
+      sha256 "d9395820490feafebe5212b38e69f739b03439c13cbd25a298d69b2b0a3ec03c"
 
       define_method(:install) do
         bin.install "zettlab-publish"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.1/zettlab-publish_0.1.1_darwin_arm64.tar.gz"
-      sha256 "6583718c0d2d40335f01e14a8fe7173a0217a7d8eea19888940536af81e75ba9"
+      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.2/zettlab-publish_0.1.2_darwin_arm64.tar.gz"
+      sha256 "367d99748899220aef08b2b1ee3e11cec1b62e73c906817f2b3c434549e04fac"
 
       define_method(:install) do
         bin.install "zettlab-publish"
@@ -28,15 +28,15 @@ class ZettlabPublish < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.1/zettlab-publish_0.1.1_linux_amd64.tar.gz"
-      sha256 "aab8cd37a28eb5f4c9bac62effc64e2e283d90bcc4db3c3c10e52bf9fdca885f"
+      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.2/zettlab-publish_0.1.2_linux_amd64.tar.gz"
+      sha256 "c1eae48faf6838734ebe9a04d0f5de7d26365048eae5dd3d646136fc3ae38227"
       define_method(:install) do
         bin.install "zettlab-publish"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.1/zettlab-publish_0.1.1_linux_arm64.tar.gz"
-      sha256 "6e3e8dd3acf107662d6ec54b4ada042488384eb49a21afa15bbc69a9c8a07f6a"
+      url "https://github.com/zettlab/homebrew-tap/releases/download/v0.1.2/zettlab-publish_0.1.2_linux_arm64.tar.gz"
+      sha256 "c7db584fc92da9d4ea0367ad5972881b24ac6d72997e224e80b6e3f5b2eebb19"
       define_method(:install) do
         bin.install "zettlab-publish"
       end
